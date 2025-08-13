@@ -75,6 +75,7 @@ exports.getCandidates = async (req, res) => {
             Candidate.countDocuments(filter),
         ]);
 
+        //return the paginated response
         return res.status(200).json({
             items,
             total: total,
