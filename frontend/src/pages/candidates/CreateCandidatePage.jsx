@@ -10,7 +10,7 @@ const CreateCandidatePage = () => {
 
     const navigate = useNavigate();
     const { user } = useAuth();
-    console.log(user)
+
 
     const handleCreateCandidate = async (formData) => {
         try {
