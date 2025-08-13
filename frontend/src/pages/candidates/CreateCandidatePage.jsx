@@ -3,15 +3,28 @@ import CandidateForm from "../../components/candidates/CandidateForm";
 
 import { useNavigate } from "react-router-dom";
 import { useAuth } from "../../context/AuthContext";
+import axiosInstance from "../../axiosConfig";
 
 
 const CreateCandidatePage = () => {
 
     const navigate = useNavigate();
     const { user } = useAuth();
+    console.log(user)
 
     const handleCreateCandidate = async (formData) => {
-
+        try {
+            const token =
+                user?.token
+            await axiosInstance.post("/api/candidate", formData, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            console.log(token)
+            alert("Candidate created successfully!");
+            navigate("/");
+        } catch (error) {
+            alert(error?.response?.data?.message || "Error creating candidate");
+        }
     };
 
     return (
