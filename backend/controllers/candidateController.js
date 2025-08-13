@@ -101,3 +101,38 @@ exports.getCandidateById = async (req, res) => {
         return res.status(500).json({ message: "Server error" });
     }
 };
+
+// Function to update a candidate by ID
+const ALLOWED_FIELDS = ["name", "position", "manifesto", "photoUrl", "status"];
+
+exports.updateCandidate = async (req, res) => {
+    try {
+        // Checking if a user is admin
+        if (!req.user?.isAdmin) {
+            return res.status(403).json({ message: "Not authorized as admin" });
+        }
+
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: "Candidate id is required" });
+
+        // Only allowed fields 
+        const updates = {};
+        for (const key of ALLOWED_FIELDS) {
+            if (req.body[key] !== undefined) updates[key] = req.body[key];
+        }
+        if (Object.keys(updates).length === 0) {
+            return res.status(400).json({ message: "No valid fields to update" });
+        }
+
+        const updated = await Candidate.findByIdAndUpdate(id, updates, {
+            new: true,            // return updated doc
+        });
+
+        if (!updated) return res.status(404).json({ message: "Candidate not found" });
+
+        res.json(updated);
+    } catch (err) {
+        console.error("updateCandidate error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+};
