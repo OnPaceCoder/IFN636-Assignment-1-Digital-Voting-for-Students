@@ -21,7 +21,7 @@ const EditCandidateForm = ({ initialValues, onSubmit }) => {
         }
     }, [initialValues]);
 
-    // Sending fields that actually changed
+    // Sending only those fields that have changed
     const changedPayload = useMemo(() => {
         if (!initialValues) return formData;
         const diff = {};

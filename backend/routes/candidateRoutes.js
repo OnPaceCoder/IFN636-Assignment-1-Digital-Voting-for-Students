@@ -1,7 +1,7 @@
 const express = require("express");
 
 const { protect, adminOnly } = require("../middleware/authMiddleware");
-const { createCandidate, getCandidates, getCandidateById } = require("../controllers/candidateController");
+const { createCandidate, getCandidates, getCandidateById, updateCandidate } = require("../controllers/candidateController");
 
 const router = express.Router();
 
@@ -9,6 +9,7 @@ const router = express.Router();
 router.post("/", protect, adminOnly, createCandidate);
 router.get("/", protect, adminOnly, getCandidates);
 router.get("/:id", protect, adminOnly, getCandidateById);
+router.patch("/:id", protect, adminOnly, updateCandidate);
 
 
 module.exports = router;
