@@ -6,6 +6,7 @@ import Profile from './pages/Profile';
 import Tasks from './pages/Tasks';
 import CreateCandidatePage from './pages/candidates/CreateCandidatePage';
 import AdminCandidatesList from './pages/candidates/AdminCandidatesList';
+import EditCandidatePage from './pages/candidates/EditCandidatePage';
 
 function App() {
   return (
@@ -18,6 +19,7 @@ function App() {
         <Route path="/tasks" element={<Tasks />} />
         <Route path="/create-candidate" element={<CreateCandidatePage />} />
         <Route path="/list-candidates" element={<AdminCandidatesList />} />
+        <Route path="/update-candidate/:id/edit" element={<EditCandidatePage />} />
       </Routes>
     </Router>
   );
