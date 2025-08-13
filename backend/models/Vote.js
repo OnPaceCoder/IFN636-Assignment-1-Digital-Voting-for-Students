@@ -1,5 +1,4 @@
-import mongoose from "mongoose";
-
+const mongoose = require('mongoose');
 const voteSchema = new mongoose.Schema(
     {
         voterId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true },
@@ -8,4 +7,4 @@ const voteSchema = new mongoose.Schema(
     { timestamps: true }
 );
 
-export default mongoose.model("Vote", voteSchema);
+module.exports = mongoose.model("Vote", voteSchema);
