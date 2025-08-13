@@ -39,11 +39,11 @@ const EditCandidatePage = () => {
         if (id) fetchOne();
     }, [id, user]);
 
-    // Submit updates
+    // Integration of backend API for updating candidate
     const handleUpdate = async (payload) => {
         try {
             const token = user?.token;
-            await axiosInstance.patch(`/api/candidates/${id}`, payload, {
+            await axiosInstance.patch(`/api/candidate/${id}`, payload, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             alert("Candidate updated successfully!");
