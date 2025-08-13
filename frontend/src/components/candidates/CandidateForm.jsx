@@ -15,6 +15,7 @@ const CandidateForm = ({ onSubmit }) => {
 
     const handleSubmit = (e) => {
         e.preventDefault();
+        console.log("Form submitted with data:", formData);
         onSubmit(formData);
     };
 
