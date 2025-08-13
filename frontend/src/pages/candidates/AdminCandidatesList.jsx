@@ -23,7 +23,30 @@ const AdminCandidatesList = () => {
 
     const query = useMemo(() => ({ q, status, page, limit }), [q, status, page, limit]);
 
+    useEffect(() => {
+        const fetchData = async () => {
+            try {
+                setLoading(true);
+                setErr("");
+                const token = user?.token;
+                const params = new URLSearchParams();
+                if (q) params.append("q", q);
+                if (status) params.append("status", status);
+                params.append("page", page);
+                params.append("limit", limit);
 
+                const res = await axiosInstance.get(`/api/candidate?${params.toString()}`, {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                });
+                setData(res.data);
+            } catch (e) {
+                setErr(e?.response?.data?.message || "Failed to load candidates");
+            } finally {
+                setLoading(false);
+            }
+        };
+        fetchData();
+    }, [query, user]);
 
     return (
         <div className="min-h-screen bg-gray-50 px-4 py-10">
