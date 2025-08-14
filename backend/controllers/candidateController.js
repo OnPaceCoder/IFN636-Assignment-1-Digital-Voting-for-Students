@@ -48,6 +48,7 @@ exports.createCandidate = async (req, res) => {
 
 }
 // Function to get all candidates with pagination and filtering
+// Function called by both Admin and Voters
 exports.getCandidates = async (req, res) => {
     try {
         const { q = "", status = "", page = 1, limit = 10, sort = "-createdAt" } = req.query;
