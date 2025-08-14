@@ -69,13 +69,13 @@ exports.getCandidates = async (req, res) => {
         const skip = (pageNum - 1) * limitNum;
 
 
-        // Find candidates with pagination and sorting
+        // Finding candidates with pagination and sorting
         const [items, total] = await Promise.all([
             Candidate.find(filter).sort(sort).skip(skip).limit(limitNum),
             Candidate.countDocuments(filter),
         ]);
 
-        //return the paginated response
+        //Return the paginated response
         return res.status(200).json({
             items,
             total: total,
@@ -89,8 +89,6 @@ exports.getCandidates = async (req, res) => {
 }
 
 // Function to get a single candidate by ID
-
-
 exports.getCandidateById = async (req, res) => {
     try {
         const candidate = await Candidate.findById(req.params.id);
@@ -125,7 +123,7 @@ exports.updateCandidate = async (req, res) => {
         }
 
         const updated = await Candidate.findByIdAndUpdate(id, updates, {
-            new: true,            // return updated doc
+            new: true,            // Return updated doc
         });
 
         if (!updated) return res.status(404).json({ message: "Candidate not found" });
