@@ -14,6 +14,13 @@ const AdminCandidatesList = () => {
     const [loading, setLoading] = useState(true);
     const [err, setErr] = useState("");
     const [data, setData] = useState({ items: [], total: 0, page: 1, pages: 1 });
+    const [showModal, setShowModal] = useState(false);
+    const [selectedId, setSelectedId] = useState(null);
+
+    const confirmDelete = (id) => {
+        setSelectedId(id);
+        setShowModal(true);
+    };
 
     // Check if user is admin
     useEffect(() => {
@@ -48,14 +55,14 @@ const AdminCandidatesList = () => {
         fetchData();
     }, [query, user]);
 
-    // Deltelete candidate
+    // Delete candidate
     const handleDelete = async (id) => {
         try {
             const token = user?.token;
-            await axiosInstance.delete(`/api/candidate/${id}`, {
+            await axiosInstance.delete(`/api/candidate/${selectedId}`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
-            alert("Candidate deleted successfully!");
+
             const res = await axiosInstance.get(`/api/candidate`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
@@ -64,6 +71,10 @@ const AdminCandidatesList = () => {
             setQ(""); // Reset search query
         } catch (e) {
             alert(e?.response?.data?.message || "Error deleting candidate");
+        }
+        finally {
+            setShowModal(false);
+            setSelectedId(null);
         }
     }
 
@@ -142,7 +153,7 @@ const AdminCandidatesList = () => {
                                                         Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => handleDelete(c._id)}
+                                                        onClick={() => confirmDelete(c._id)}
                                                         className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
                                                         Delete
@@ -178,6 +189,33 @@ const AdminCandidatesList = () => {
                             </button>
                         </div>
                     </div>
+
+                    {/* Delete Confirmation Modal */}
+                    {showModal && (
+                        <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+                            <div className="bg-white rounded-lg shadow-lg p-6 w-full max-w-sm">
+                                <h2 className="text-lg font-semibold text-gray-800 mb-4">Confirm Deletion</h2>
+                                <p className="text-gray-600 mb-6">
+                                    Are you sure you want to delete this candidate? This action cannot be undone.
+                                </p>
+                                <div className="flex justify-end gap-3">
+                                    <button
+                                        onClick={() => setShowModal(false)}
+                                        className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                                    >
+                                        Cancel
+                                    </button>
+                                    <button
+                                        onClick={handleDelete}
+                                        className="px-4 py-2 bg-red-600 text-white rounded hover:bg-red-700"
+                                    >
+                                        Delete
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+                    )}
+
                 </div>
 
             </div>
