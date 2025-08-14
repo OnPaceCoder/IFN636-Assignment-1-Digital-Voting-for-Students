@@ -81,7 +81,21 @@ const VotePage = () => {
     // Cast vote
     const submitVote = async () => {
         if (!selected) return;
-        console.log("Submitting vote for:", selected.name);
+        try {
+            setSubmitting(true);
+            const token = user?.token;
+            await axiosInstance.post(`/api/vote/${selected._id}`, {}, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            alert("Your vote has been submitted. Thank you!");
+            setShowModal(false);
+            setSelected(null);
+        } catch (e) {
+            alert(e?.response?.data?.message || "Failed to submit your vote");
+            setShowModal(false);
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
