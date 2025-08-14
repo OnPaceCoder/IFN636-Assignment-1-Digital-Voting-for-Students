@@ -52,9 +52,12 @@ exports.createCandidate = async (req, res) => {
 exports.getCandidates = async (req, res) => {
     try {
         const { q = "", status = "", page = 1, limit = 10, sort = "-createdAt" } = req.query;
-
-
         const filter = {};
+
+        if (!req.user?.isAdmin) {
+            filter.status = "active"; // Voters only see active candidates
+        }
+
         if (q) {
             filter.$or = [
                 { name: { $regex: q, $options: "i" } },
@@ -143,8 +146,12 @@ exports.deleteCandidate = async (req, res) => {
         if (!req.user?.isAdmin) {
             return res.status(403).json({ message: "Not authorized as admin" })
         }
+
+        // Validating id
         const { id } = req.params;
         if (!id) return res.status(400).json({ message: "Candidate id is required" });
+
+        // Checking if candidate exists and deleting
         const deleted = await Candidate.findByIdAndDelete(id);
         if (!deleted) return res.status(404).json({ message: "Candidate not found" });
         res.json({ message: "Candidate deleted successfully" });

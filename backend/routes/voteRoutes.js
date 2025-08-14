@@ -1,10 +1,12 @@
 const express = require("express");
 
-const { protect, adminOnly } = require("../middleware/authMiddleware");
+const { protect } = require("../middleware/authMiddleware");
 const { getCandidates } = require("../controllers/candidateController");
+const { castVote } = require("../controllers/voteController");
 
 const router = express.Router();
 
 // Voter CRUD operations
-router.get("/", protect, getCandidates);
+router.get("/candidates", protect, getCandidates);
+router.post("/:id", protect, castVote)
 module.exports = router;
