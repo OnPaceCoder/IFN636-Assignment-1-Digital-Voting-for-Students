@@ -7,6 +7,7 @@ import Tasks from './pages/Tasks';
 import CreateCandidatePage from './pages/candidates/CreateCandidatePage';
 import AdminCandidatesList from './pages/candidates/AdminCandidatesList';
 import EditCandidatePage from './pages/candidates/EditCandidatePage';
+import VotePage from './pages/voting/VotePage';
 
 function App() {
   return (
@@ -20,6 +21,7 @@ function App() {
         <Route path="/create-candidate" element={<CreateCandidatePage />} />
         <Route path="/list-candidates" element={<AdminCandidatesList />} />
         <Route path="/update-candidate/:id/edit" element={<EditCandidatePage />} />
+        <Route path="/add-vote" element={<VotePage />} />
       </Routes>
     </Router>
   );
