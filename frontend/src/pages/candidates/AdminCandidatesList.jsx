@@ -48,6 +48,25 @@ const AdminCandidatesList = () => {
         fetchData();
     }, [query, user]);
 
+    // Deltelete candidate
+    const handleDelete = async (id) => {
+        try {
+            const token = user?.token;
+            await axiosInstance.delete(`/api/candidate/${id}`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            alert("Candidate deleted successfully!");
+            const res = await axiosInstance.get(`/api/candidate`, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            setData(res.data);
+            setPage(1); // Reset to first page after deletion
+            setQ(""); // Reset search query
+        } catch (e) {
+            alert(e?.response?.data?.message || "Error deleting candidate");
+        }
+    }
+
     return (
         <div className="min-h-screen bg-gray-50 px-4 py-10">
             <div className="max-w-5xl mx-auto">
@@ -123,7 +142,7 @@ const AdminCandidatesList = () => {
                                                         Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => navigate(`/list-candidates`)}
+                                                        onClick={() => handleDelete(c._id)}
                                                         className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
                                                         Delete
