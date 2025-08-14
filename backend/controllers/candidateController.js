@@ -136,3 +136,25 @@ exports.updateCandidate = async (req, res) => {
         res.status(500).json({ message: "Server error" });
     }
 };
+
+// Function to delete a candidate by ID
+exports.deleteCandidate = async (req, res) => {
+    try {
+        // Checking if a user is admin
+        if (!req.user?.isAdmin) {
+            return res.status(403).json({ message: "Not authorized as admin" })
+        }
+        const { id } = req.params;
+        if (!id) return res.status(400).json({ message: "Candidate id is required" });
+        const deleted = await Candidate.findByIdAndDelete(id);
+        if (!deleted) return res.status(404).json({ message: "Candidate not found" });
+        res.json({ message: "Candidate deleted successfully" });
+
+    }
+    catch (err) {
+        console.error("deleteCandidate error:", err);
+        res.status(500).json({ message: "Server error" });
+    }
+
+
+}

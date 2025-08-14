@@ -21,7 +21,7 @@ const CreateCandidatePage = () => {
             });
             console.log(token)
             alert("Candidate created successfully!");
-            navigate("/");
+            navigate("/list-candidates");
         } catch (error) {
             alert(error?.response?.data?.message || "Error creating candidate");
         }
