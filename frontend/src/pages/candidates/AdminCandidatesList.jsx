@@ -123,10 +123,10 @@ const AdminCandidatesList = () => {
                                                         Edit
                                                     </button>
                                                     <button
-                                                        onClick={() => navigate(`/admin/candidates/${c._id}`)}
+                                                        onClick={() => navigate(`/list-candidates`)}
                                                         className="rounded-md border border-gray-300 bg-white px-3 py-1.5 text-sm text-gray-700 hover:bg-gray-50"
                                                     >
-                                                        View
+                                                        Delete
                                                     </button>
                                                 </div>
                                             </td>
