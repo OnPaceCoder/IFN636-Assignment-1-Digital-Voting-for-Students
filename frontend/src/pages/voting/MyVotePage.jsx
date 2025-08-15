@@ -65,6 +65,24 @@ const MyVotePage = () => {
     // Submit change vote
     const submitChange = async () => {
 
+        if (!selected) return;
+        try {
+            setSubmitting(true);
+            const token = user?.token;
+            await axiosInstance.put(`/api/vote/${selected._id}`, {}, {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            // Refresh status to show updated vote
+            const { data } = await axiosInstance.get("/api/vote/status", {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            if (data?.hasVoted && data.vote) setVote(data.vote);
+            setShowChangeModal(false);
+        } catch (e) {
+            setError(e?.response?.data?.message || "Failed to change your vote");
+        } finally {
+            setSubmitting(false);
+        }
     };
 
     return (
