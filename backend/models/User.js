@@ -9,6 +9,7 @@ const userSchema = new mongoose.Schema({
     university: { type: String },
     address: { type: String },
     isAdmin: { type: Boolean, default: false },
+    hasVoted: { type: Boolean, default: false }
 });
 
 userSchema.pre('save', async function (next) {

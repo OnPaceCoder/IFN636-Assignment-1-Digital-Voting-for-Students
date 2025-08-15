@@ -1,6 +1,6 @@
 const Vote = require('../models/Vote');
 const Candidate = require('../models/Candidate');
-
+const User = require('../models/User');
 // Function to cast a vote for a candidate
 exports.castVote = async (req, res) => {
     try {
@@ -39,3 +39,22 @@ exports.castVote = async (req, res) => {
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 }
+
+// Function to get the Vote status and details about candidate they voted for (Get - MyVote details / View Vote)
+exports.getVoteStatus = async (req, res) => {
+    const vote = await Vote.findOne({ voterId: req.user._id }).populate('candidateId');
+    if (!vote) return res.json({ hasVoted: false, vote: null });
+
+    res.json({
+        hasVoted: true,
+        vote: {
+            _id: vote._id,
+            candidateId: vote.candidateId?._id,
+            candidateName: vote.candidateId?.name,
+            position: vote.candidateId?.position,
+            photoUrl: vote.candidateId?.photoUrl,
+            manifesto: vote.candidateId?.manifesto,
+            when: vote.createdAt
+        }
+    });
+};
