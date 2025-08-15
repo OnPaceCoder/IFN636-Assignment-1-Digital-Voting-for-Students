@@ -9,21 +9,22 @@ const MyVotePage = () => {
 
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [vote, setVote] = useState(null); // store vote details
+    const [vote, setVote] = useState(null);
 
-    // change-vote UI state
+    // Change-vote UI states
     const [showChangeModal, setShowChangeModal] = useState(false);
     const [candidates, setCandidates] = useState([]);
     const [selected, setSelected] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
-    // NEW: withdrawing state
+    // Withdrawing state
     const [withdrawing, setWithdrawing] = useState(false);
 
     useEffect(() => {
         if (!user) navigate("/login");
     }, [user, navigate]);
 
+    // Fetch user's vote status
     useEffect(() => {
         const fetchVote = async () => {
             try {
@@ -87,24 +88,9 @@ const MyVotePage = () => {
         }
     };
 
-    // NEW: withdraw (delete) vote
+    // Withdraw (delete) vote
     const withdrawVote = async () => {
-        if (!window.confirm("Withdraw your vote? This will remove your current vote.")) return;
-        try {
-            setWithdrawing(true);
-            const token = user?.token;
-            await axiosInstance.delete("/api/vote", {
-                headers: token ? { Authorization: `Bearer ${token}` } : {},
-            });
-            // Clear local state so UI reflects no vote
-            setVote(null);
-            setShowChangeModal(false);
-            setSelected(null);
-        } catch (e) {
-            setError(e?.response?.data?.message || "Failed to withdraw your vote");
-        } finally {
-            setWithdrawing(false);
-        }
+
     };
 
     return (

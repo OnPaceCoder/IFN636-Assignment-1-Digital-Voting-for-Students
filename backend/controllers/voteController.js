@@ -106,3 +106,29 @@ exports.changeVote = async (req, res) => {
         return res.status(500).json({ message: 'Server error', error: error.message });
     }
 }
+
+// Function to delte a vote
+exports.deleteVote = async (req, res) => {
+    try {
+        // Checking if user has already voted
+        const existingVote = await Vote.findOne({ voterId: req.user._id });
+        if (!existingVote) {
+            return res.status(400).json({ message: "You have not voted yet" });
+        }
+
+        // Decrementing the candidate's vote count
+        const candidate = await Candidate.findById(existingVote.candidateId);
+        if (candidate) {
+            candidate.voteCount -= 1;
+            await candidate.save();
+        }
+
+        // Deleting the vote
+        await Vote.deleteOne({ _id: existingVote._id });
+
+        res.status(200).json({ message: "Vote deleted successfully" });
+    } catch (error) {
+        console.error("deleteVote error:", error);
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
