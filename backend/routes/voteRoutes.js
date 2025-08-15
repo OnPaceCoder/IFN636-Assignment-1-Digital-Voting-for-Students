@@ -2,7 +2,6 @@ const express = require("express");
 
 const { protect } = require("../middleware/authMiddleware");
 const { getCandidates } = require("../controllers/candidateController");
-const { castVote } = require("../controllers/voteController");
 
 const router = express.Router();
 
