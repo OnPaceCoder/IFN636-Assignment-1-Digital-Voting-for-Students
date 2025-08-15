@@ -91,6 +91,22 @@ const MyVotePage = () => {
     // Withdraw (delete) vote
     const withdrawVote = async () => {
 
+        if (!window.confirm("Withdraw your vote? This will remove your current vote.")) return;
+        try {
+            setWithdrawing(true);
+            const token = user?.token;
+            await axiosInstance.delete("/api/vote", {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+
+            setVote(null);
+            setShowChangeModal(false);
+            setSelected(null);
+        } catch (e) {
+            setError(e?.response?.data?.message || "Failed to withdraw your vote");
+        } finally {
+            setWithdrawing(false);
+        }
     };
 
     return (
