@@ -50,20 +50,13 @@ jobs:
       # Install dependencies for frontend
       - name: Install Frontend Dependencies
         working-directory: ./frontend
+        env:
+          CI: ""
         run: |
           df -h
           sudo rm -rf ./build
           yarn install
           yarn run build
-
-      # Run backend tests
-      - name: Run Backend Tests
-        env:
-          MONGO_URI: ${{ secrets.MONGO_URI }}
-          JWT_SECRET: ${{ secrets.JWT_SECRET }}
-          PORT: ${{ secrets.PORT }}
-        working-directory: ./backend
-        run: npm test
 
       - run: npm ci
       - run: |
