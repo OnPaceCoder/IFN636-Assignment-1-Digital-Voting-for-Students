@@ -19,6 +19,8 @@ const MyVotePage = () => {
 
     // Withdrawing state
     const [withdrawing, setWithdrawing] = useState(false);
+    // Delete confirm modal
+    const [showDeleteModal, setShowDeleteModal] = useState(false);
 
     useEffect(() => {
         if (!user) navigate("/login");
@@ -90,8 +92,6 @@ const MyVotePage = () => {
 
     // Withdraw (delete) vote
     const withdrawVote = async () => {
-
-        if (!window.confirm("Withdraw your vote? This will remove your current vote.")) return;
         try {
             setWithdrawing(true);
             const token = user?.token;
@@ -102,6 +102,7 @@ const MyVotePage = () => {
             setVote(null);
             setShowChangeModal(false);
             setSelected(null);
+            setShowDeleteModal(false);
         } catch (e) {
             setError(e?.response?.data?.message || "Failed to withdraw your vote");
         } finally {
@@ -157,11 +158,11 @@ const MyVotePage = () => {
                                 Change Vote
                             </button>
                             <button
-                                onClick={withdrawVote}
+                                onClick={() => setShowDeleteModal(true)}
                                 disabled={withdrawing}
                                 className="rounded-lg bg-red-600 text-white px-3 py-2 text-sm hover:bg-red-700 disabled:opacity-60"
                             >
-                                {withdrawing ? "Withdrawing…" : "Withdraw Vote"}
+                                Withdraw Vote
                             </button>
                         </div>
                     </div>
@@ -217,6 +218,34 @@ const MyVotePage = () => {
                                 disabled={!selected || submitting}
                             >
                                 {submitting ? "Updating…" : "Confirm Change"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
+
+            {/* Withdraw Confirmation Modal */}
+            {showDeleteModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-2">Withdraw your vote?</h2>
+                        <p className="text-gray-700 mb-4">
+                            This will remove your current vote. You can vote again later.
+                        </p>
+                        <div className="flex justify-end gap-3">
+                            <button
+                                onClick={() => setShowDeleteModal(false)}
+                                className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                disabled={withdrawing}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={withdrawVote}
+                                className="px-4 py-2 rounded-lg bg-red-600 text-white hover:bg-red-700 disabled:opacity-60"
+                                disabled={withdrawing}
+                            >
+                                {withdrawing ? "Withdrawing…" : "Confirm Withdraw"}
                             </button>
                         </div>
                     </div>
