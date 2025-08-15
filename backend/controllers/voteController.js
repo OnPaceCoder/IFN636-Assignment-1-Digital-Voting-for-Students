@@ -58,3 +58,51 @@ exports.getVoteStatus = async (req, res) => {
         }
     });
 };
+
+
+//Functin to change vote
+exports.changeVote = async (req, res) => {
+    try {
+        const { id } = req.params;
+
+        // Validating id 
+        if (!id) {
+            return res.status(400).json({ message: "Candidate ID is required" });
+        }
+
+        // Checking if candidate exists and is active
+        const candidate = await Candidate.findById(id);
+        if (!candidate || candidate.status !== 'active') {
+            return res.status(404).json({ message: "Candidate not found or not active" });
+        }
+
+        // Checking if user has already voted
+        const existingVote = await Vote.findOne({ voterId: req.user._id });
+        if (!existingVote) {
+            return res.status(400).json({ message: "You have not voted yet" });
+        }
+
+        // Decrementing the old candidate's vote count
+        const oldCandidate = await Candidate.findById(existingVote.candidateId);
+        if (oldCandidate) {
+            oldCandidate.voteCount -= 1;
+            await oldCandidate.save();
+        }
+
+        // Update the vote with new candidate
+        existingVote.candidateId = candidate._id;
+        await existingVote.save();
+
+        // Incrementing the new candidate's vote count
+        candidate.voteCount += 1;
+        await candidate.save();
+
+        res.status(200).json({
+            message: "Vote changed successfully",
+            vote: existingVote
+        });
+    } catch (error) {
+        console.error("changeVote error:", error);
+        return res.status(500).json({ message: 'Server error', error: error.message });
+    }
+}
