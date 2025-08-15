@@ -11,6 +11,12 @@ const MyVotePage = () => {
     const [error, setError] = useState("");
     const [vote, setVote] = useState(null); // store vote details
 
+    // change-vote UI state
+    const [showChangeModal, setShowChangeModal] = useState(false);
+    const [candidates, setCandidates] = useState([]);
+    const [selected, setSelected] = useState(null);
+    const [submitting, setSubmitting] = useState(false);
+
     useEffect(() => {
         if (!user) navigate("/login");
     }, [user, navigate]);
@@ -40,6 +46,26 @@ const MyVotePage = () => {
         if (user) fetchVote();
     }, [user]);
 
+    // Change modal: fetch active candidates (excluding current) 
+    const openChange = async () => {
+        try {
+            const token = user?.token;
+            const { data } = await axiosInstance.get("/api/vote/candidates", {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            const items = (data?.items || []).filter(c => c._id !== vote?.candidateId);
+            setCandidates(items);
+            setSelected(null);
+            setShowChangeModal(true);
+        } catch (e) {
+            setError(e?.response?.data?.message || "Failed to load candidates");
+        }
+    };
+
+    // Submit change vote
+    const submitChange = async () => {
+
+    };
 
     return (
         <div className="min-h-screen bg-gray-50 px-4 py-10">
@@ -73,13 +99,80 @@ const MyVotePage = () => {
                                 <p className="text-sm text-gray-600">{vote.position}</p>
                             </div>
                         </div>
-                        <p className="mt-3">Manifesto: {vote.manifesto}</p>
+                        {vote.manifesto && (
+                            <p className="mt-3">Manifesto: {vote.manifesto}</p>
+                        )}
                         <p className="mt-4 text-sm text-gray-500">
                             Voted on: {new Date(vote.when).toLocaleString()}
                         </p>
+
+                        {/* Change Vote button (new) */}
+                        <div className="mt-4">
+                            <button
+                                onClick={openChange}
+                                className="rounded-lg bg-blue-600 text-white px-3 py-2 text-sm hover:bg-blue-700"
+                            >
+                                Change Vote
+                            </button>
+                        </div>
                     </div>
                 )}
             </div>
+
+            {/* Change Vote Modal */}
+            {showChangeModal && (
+                <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
+                    <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">
+                        <h2 className="text-lg font-semibold text-gray-900 mb-3">Change your vote</h2>
+                        <p className="text-gray-700 mb-4">Select a different candidate:</p>
+
+                        <div className="max-h-64 overflow-auto space-y-2">
+                            {candidates.length === 0 ? (
+                                <div className="text-sm text-gray-600">No other active candidates available.</div>
+                            ) : candidates.map(c => (
+                                <label
+                                    key={c._id}
+                                    className={`flex items-center gap-3 border rounded-lg p-3 cursor-pointer ${selected?._id === c._id ? "ring-2 ring-blue-500" : ""}`}
+                                >
+                                    <input
+                                        type="radio"
+                                        name="candidate"
+                                        value={c._id}
+                                        checked={selected?._id === c._id}
+                                        onChange={() => setSelected(c)}
+                                    />
+                                    <img
+                                        src={c.photoUrl || "https://picsum.photos/id/237/200/300"}
+                                        alt={c.name}
+                                        className="h-10 w-10 rounded-full object-cover border"
+                                    />
+                                    <div className="flex flex-col">
+                                        <span className="font-medium">{c.name}</span>
+                                        <span className="text-xs text-gray-600">{c.position}</span>
+                                    </div>
+                                </label>
+                            ))}
+                        </div>
+
+                        <div className="mt-5 flex justify-end gap-3">
+                            <button
+                                onClick={() => { setShowChangeModal(false); setSelected(null); }}
+                                className="px-4 py-2 rounded-lg bg-gray-200 text-gray-800 hover:bg-gray-300"
+                                disabled={submitting}
+                            >
+                                Cancel
+                            </button>
+                            <button
+                                onClick={submitChange}
+                                className="px-4 py-2 rounded-lg bg-blue-600 text-white hover:bg-blue-700 disabled:opacity-60"
+                                disabled={!selected || submitting}
+                            >
+                                {submitting ? "Updating…" : "Confirm Change"}
+                            </button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </div>
     )
 };
