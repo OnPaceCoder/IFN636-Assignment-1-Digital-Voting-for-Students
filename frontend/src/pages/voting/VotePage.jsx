@@ -3,7 +3,10 @@ import axiosInstance from "../../axiosConfig";
 import { useAuth } from "../../context/AuthContext";
 import { useNavigate } from "react-router-dom";
 
-const CandidateCard = ({ candidate, onVote }) => {
+const CandidateCard = ({ candidate, onVote, votedForId }) => {
+    const isVoted = votedForId === candidate._id;
+    const alreadyVoted = Boolean(votedForId);
+
     return (
         <div className="bg-white rounded-lg shadow-md p-5 flex flex-col">
             <div className="flex items-center gap-4">
@@ -23,13 +26,23 @@ const CandidateCard = ({ candidate, onVote }) => {
             )}
 
             <div className="mt-5 flex items-center justify-between">
-
-                <button
-                    onClick={() => onVote(candidate)}
-                    className="inline-flex items-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white shadow hover:bg-blue-700"
-                >
-                    Vote
-                </button>
+                {isVoted ? (
+                    <span className="inline-flex items-center rounded-lg bg-green-100 text-green-800 px-3 py-2 text-sm font-medium">
+                        ✓ Voted
+                    </span>
+                ) : (
+                    <button
+                        onClick={() => onVote(candidate)}
+                        disabled={alreadyVoted}
+                        className={`inline-flex items-center rounded-lg px-3 py-2 text-sm font-medium shadow
+                            ${alreadyVoted
+                                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                                : "bg-blue-600 text-white hover:bg-blue-700"
+                            }`}
+                    >
+                        Vote
+                    </button>
+                )}
             </div>
         </div>
     );
@@ -47,18 +60,19 @@ const VotePage = () => {
     const [selected, setSelected] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
-    // Auth guard (voter-facing page: just require login)
+    const [votedForId, setVotedForId] = useState(null);
+
     useEffect(() => {
         if (!user) navigate("/login");
     }, [user, navigate]);
 
-    // Load active candidates for voting
+    // Load active candidates
     useEffect(() => {
         const fetchActive = async () => {
             try {
                 setLoading(true);
                 setErr("");
-                const token = user?.token || localStorage.getItem("token");
+                const token = user?.token;
                 const { data } = await axiosInstance.get("/api/vote/candidates", {
                     headers: token ? { Authorization: `Bearer ${token}` } : {},
                 });
@@ -72,13 +86,29 @@ const VotePage = () => {
         fetchActive();
     }, [user]);
 
-    // Open confirmation modal
+    // Fetch vote status
+    useEffect(() => {
+        const fetchStatus = async () => {
+            try {
+                const token = user?.token || localStorage.getItem("token");
+                const { data } = await axiosInstance.get("/api/vote/status", {
+                    headers: token ? { Authorization: `Bearer ${token}` } : {},
+                });
+                if (data?.hasVoted) {
+                    setVotedForId(data.vote.candidateId);
+                }
+            } catch (e) {
+                console.error("Failed to fetch vote status", e);
+            }
+        };
+        if (user) fetchStatus();
+    }, [user]);
+
     const openConfirm = (candidate) => {
         setSelected(candidate);
         setShowModal(true);
     };
 
-    // Cast vote
     const submitVote = async () => {
         if (!selected) return;
         try {
@@ -88,6 +118,7 @@ const VotePage = () => {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             alert("Your vote has been submitted. Thank you!");
+            setVotedForId(selected._id);
             setShowModal(false);
             setSelected(null);
         } catch (e) {
@@ -101,7 +132,6 @@ const VotePage = () => {
     return (
         <div className="min-h-screen bg-gray-50 px-4 py-10">
             <div className="max-w-6xl mx-auto">
-                {/* Header */}
                 <div className="mb-6 flex items-center justify-between">
                     <h1 className="text-2xl md:text-3xl font-bold text-gray-900">Vote for Your Candidate</h1>
                     <button
@@ -112,7 +142,6 @@ const VotePage = () => {
                     </button>
                 </div>
 
-                {/* Body */}
                 {loading ? (
                     <div className="text-gray-600">Loading…</div>
                 ) : err ? (
@@ -122,13 +151,17 @@ const VotePage = () => {
                 ) : (
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
                         {candidates.map((c) => (
-                            <CandidateCard key={c._id} candidate={c} onVote={openConfirm} />
+                            <CandidateCard
+                                key={c._id}
+                                candidate={c}
+                                onVote={openConfirm}
+                                votedForId={votedForId}
+                            />
                         ))}
                     </div>
                 )}
             </div>
 
-            {/* Confirm Vote Modal */}
             {showModal && selected && (
                 <div className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 px-4">
                     <div className="w-full max-w-md rounded-lg bg-white p-6 shadow-lg">

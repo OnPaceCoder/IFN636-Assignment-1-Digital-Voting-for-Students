@@ -8,6 +8,7 @@ import CreateCandidatePage from './pages/candidates/CreateCandidatePage';
 import AdminCandidatesList from './pages/candidates/AdminCandidatesList';
 import EditCandidatePage from './pages/candidates/EditCandidatePage';
 import VotePage from './pages/voting/VotePage';
+import MyVotePage from './pages/voting/MyVotePage';
 
 function App() {
   return (
@@ -22,6 +23,8 @@ function App() {
         <Route path="/list-candidates" element={<AdminCandidatesList />} />
         <Route path="/update-candidate/:id/edit" element={<EditCandidatePage />} />
         <Route path="/add-vote" element={<VotePage />} />
+        <Route path="/my-vote" element={<MyVotePage />} />
+
       </Routes>
     </Router>
   );

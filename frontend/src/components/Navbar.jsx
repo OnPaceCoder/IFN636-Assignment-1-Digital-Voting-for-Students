@@ -21,6 +21,7 @@ const Navbar = () => {
             <Link to="/create-candidate" className="mr-4">Create Candidate</Link>
             <Link to="/list-candidates" className="mr-4">Candidates</Link>
             <Link to="/add-vote" className="mr-4">Vote</Link>
+            <Link to="/my-vote" className="mr-4">MyVote</Link>
             <button
               onClick={handleLogout}
               className="bg-red-500 px-4 py-2 rounded hover:bg-red-700"
