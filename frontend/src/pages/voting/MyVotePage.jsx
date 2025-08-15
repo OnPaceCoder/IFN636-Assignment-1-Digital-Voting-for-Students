@@ -17,6 +17,9 @@ const MyVotePage = () => {
     const [selected, setSelected] = useState(null);
     const [submitting, setSubmitting] = useState(false);
 
+    // NEW: withdrawing state
+    const [withdrawing, setWithdrawing] = useState(false);
+
     useEffect(() => {
         if (!user) navigate("/login");
     }, [user, navigate]);
@@ -64,7 +67,6 @@ const MyVotePage = () => {
 
     // Submit change vote
     const submitChange = async () => {
-
         if (!selected) return;
         try {
             setSubmitting(true);
@@ -82,6 +84,26 @@ const MyVotePage = () => {
             setError(e?.response?.data?.message || "Failed to change your vote");
         } finally {
             setSubmitting(false);
+        }
+    };
+
+    // NEW: withdraw (delete) vote
+    const withdrawVote = async () => {
+        if (!window.confirm("Withdraw your vote? This will remove your current vote.")) return;
+        try {
+            setWithdrawing(true);
+            const token = user?.token;
+            await axiosInstance.delete("/api/vote", {
+                headers: token ? { Authorization: `Bearer ${token}` } : {},
+            });
+            // Clear local state so UI reflects no vote
+            setVote(null);
+            setShowChangeModal(false);
+            setSelected(null);
+        } catch (e) {
+            setError(e?.response?.data?.message || "Failed to withdraw your vote");
+        } finally {
+            setWithdrawing(false);
         }
     };
 
@@ -124,13 +146,20 @@ const MyVotePage = () => {
                             Voted on: {new Date(vote.when).toLocaleString()}
                         </p>
 
-                        {/* Change Vote button (new) */}
-                        <div className="mt-4">
+                        {/* Actions */}
+                        <div className="mt-4 flex gap-2">
                             <button
                                 onClick={openChange}
                                 className="rounded-lg bg-blue-600 text-white px-3 py-2 text-sm hover:bg-blue-700"
                             >
                                 Change Vote
+                            </button>
+                            <button
+                                onClick={withdrawVote}
+                                disabled={withdrawing}
+                                className="rounded-lg bg-red-600 text-white px-3 py-2 text-sm hover:bg-red-700 disabled:opacity-60"
+                            >
+                                {withdrawing ? "Withdrawing…" : "Withdraw Vote"}
                             </button>
                         </div>
                     </div>
