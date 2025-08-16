@@ -3,7 +3,7 @@ name: Backend CI
 on:
   push:
     branches: [main]
-
+  workflow_dispatch: {}
 jobs:
   test:
     name: Run Tests
