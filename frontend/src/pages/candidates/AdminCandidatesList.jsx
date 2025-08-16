@@ -66,9 +66,10 @@ const AdminCandidatesList = () => {
             const res = await axiosInstance.get(`/api/candidate`, {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
+            alert("Candidate deleted successfully!");
             setData(res.data);
-            setPage(1); // Reset to first page after deletion
-            setQ(""); // Reset search query
+            setPage(1);
+            setQ("");
         } catch (e) {
             alert(e?.response?.data?.message || "Error deleting candidate");
         }

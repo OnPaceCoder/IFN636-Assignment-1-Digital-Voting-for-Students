@@ -47,7 +47,7 @@ const EditCandidatePage = () => {
                 headers: token ? { Authorization: `Bearer ${token}` } : {},
             });
             alert("Candidate updated successfully!");
-            navigate("/admin/candidates");
+            navigate("/list-candidates");
         } catch (e) {
             alert(e?.response?.data?.message || "Error updating candidate");
         }
