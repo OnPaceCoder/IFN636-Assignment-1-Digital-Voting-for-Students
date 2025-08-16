@@ -1,94 +1,172 @@
+Digital Voting System
 
-**Assessment 1 (Total Marks **20**)**
+-
 
-Assignment: **Software requirements analysis and design (**Full-Stack CRUD Application Development with DevOps Practices**)**
+## **Project Setup Instructions**
 
+(Local Development)
 
----
+Prerequisites
 
-**Objective**
+- Node.js 22+
+- MongoDB either a local MongoDB or MongoDB Atlas connection string
+- Git
 
-You have been provided with a starter project that includes user authentication using Node.js, React.js, and MongoDB. Your task is to extend this application by implementing CRUD (Create, Read, Update, Delete) operations of different featuresfor a real-world application of your choice, while following industry best practices such as: 
+1.  Clone the repo
 
-* **Project Management with JIRA**
-* **Requirement Diagram**, **Block Definition Diagram (**BDD), Parametric Diagram using**SysML**
-* **Version Control using GitHub**
-* **CI/CD Integration for Automated Deployment**
+- git clone https://github.com/OnPaceCoder/IFN636-Assignment-1-Digital-Voting-for-Students.git
+- cd your-repo-folder
 
----
+2.  Install Dependencies
 
-**GitHub link of the starter project: **[https://github.com/rajuiit/sdlapps](https://github.com/rajuiit/sdlapps)
+- npm run install-all (# Installs all frontend and backend dependencies )
 
----
+3.  Environment variable
 
-**Requirement**
+- Create a file name .env in backend/:
+- MONGO_URI=**your mongo uri link**
+- JWT_SECRET=**jwt secret here**
+- PORT=**Port number**
 
-1. **Choose a Real-World Application**
+4.  Run Project
 
-We will send you an email to choose a Real-World project. If you face any difficulties in choosing your project, please contact your tutor.
+- Go to root folder
+- npm run dev
 
-2. **Project Design with SysML and Project Management with JIRA**
-
-* Draw a requirements diagram, Block Definition Diagram (BDD), and Parametric Diagram based on your project (Connect all functional features).
-* Create a JIRA project and define:
-  * Epic
-  * User Stories (features required in your app)
-  * Child issues or Subtasks (breaking down development work)
-  * Sprint Implementation (organizing work into milestones)
-* Provide your JIRA board URL in the project README.
-
-**3. Backend Development (Node.js + Express + MongoDB)**
-
-* Set up and configure the MongoDB database connection.
-* Implement various backend functions for handling application data.Ensure that all functions are compatible with an Application Programming Interface (API) structure(Follow existing patterns used in the Task Manager App where applicable).
-* Implement CRUD operations forcreating, reading, updating, and deleting records for each functionality.
-
-4. **Frontend Development (React.js)**
-
-* Create a user-friendly interface to interact with your API endpoint (Follow task manager app).
-* Implement different forms for adding, updating, and deleting records.
-* Display data using tables, cards, or lists (Follow how we showed data in task manager app, try to implement better visualization for the frontend.)
-
-**5. Authentication & Authorization** (Prerequisite Task)
-
-* Ensure only authenticated users can access and perform CRUD operations. (Already developed in your project)
-* Use JWT (JSON Web Tokens) for user authentication (Use the task manager one from .env file).
-
-**6. GitHub Version Control & Branching Strategy**
-
-* Use GitHub for version control and maintain:
-* main branch (stable production-ready code)
-* Feature branches for each new feature
-* Follow proper commit messages and pull request (PR) for code reviews.
-
-**7. CI/CD Pipeline Setup**
-
-* Implement a CI/CD pipeline using GitHub Actions to:
-* Automatically run tests on every commit/pull request (Optional).
-* Deploy the backend to AWS. (Use the QUT provided EC2 instance)
-* Deploy the frontend to AWS.
-* Document your CI/CD workflow in the README.
+**Backend Runs on** http://localhost:5001
+**Frontend Runs on** http://localhost:3000
 
 ---
 
-**Submission Requirements**
+## **Public URLs of Project:**
 
-**A report **contains** the following (Provide screenshots as evidence for each implemented task. **The screenshot should **contain** your username** from JIRA, GITHUB, and AWS**):
+- http://52.62.56.77
+- http://ec2-52-62-56-77.ap-southeast-2.compute.amazonaws.com
 
-* **JIRA Project **Management**(Provide screenshots in the **report o**f at least two epics**, **including user story, sub**t**a**sks**. **Please **don’t** provide **the **U**ser Authentication** epic**.**Provide your JIRA Board URL in the report and README file as well.**Through the JIRA Board, we will systematically review the completeness of the project features, organised under Epics, User Stories, and Sub-tasks.**
-* Requirement diagram, Block Definition Diagram (BDD), Parametric Diagram (Using project features).
-* **GitHub Repository (backend/ and frontend/)** link. We will **review** your code implementation, which you followed from the task description. We will also **review** your commits, main branch, feature branches, and pull requests. **(**Please note that the authorisation** (Log In, Registration)** is the prerequisite for backend development.**)**
-* CI/CD pipeline details step by step screenshot.
-* README.md with:
-* Project setup instructions.
-* Public URL of your project.
-* Provide a project-specific username and password if we need to access your dashboard.
+[Note] - EC2 instance is stopped every mid-night, so public IP changes after every restart and above URLs might not work.
 
 ---
 
-**Assessment Criteria:**
+## **Sample User Accounts**
 
-* Clarity and completeness of Jira board and SysML models.
-* Adherence to Git best practices and practical contributions.
-* Successful implementation, deploymentand CI/CD pipeline.
-* Problem-solving skills and the ability to go beyond basic requirements.
+- Admin (Username - admin@gmail.com and Password - Admin123)
+- Voter or User (Username - elon@gmail.com and Password - Elon123)
+
+---
+
+**CI/CD Detailed Workflow**
+
+-
+
+1. Triggers
+
+```yaml
+on:
+ push:
+   branches: [main]
+ workflow_dispatch: {}
+```
+
+- The workflow triggers when anything is pushed to "main" or manually run via the Actions tab (workflow_dispatch)
+
+2.  Set up job
+
+```yaml
+jobs:
+ test:
+   name: Run Tests
+   runs-on: self-hosted
+```
+
+- It executs the job on our own runner, self-hosted(EC2)
+
+3. Strategy
+
+```yaml
+strategy:
+     matrix:
+       node-version: [22]
+   environment: MONGO_URI
+```
+
+- It runs the job with Node.js version 22 and sets the job's deployment envrionment name to MONGO_URI
+
+4. Checkout repository
+
+```yaml
+steps:
+     - name: Checkout Code
+       uses: actions/checkout@v3
+```
+
+- It pulls the exact commit that triggered the workflow
+
+5. Install Node.js
+
+```yaml
+      - name: Setup Node.js
+        uses: actions/setup-node@v3
+        with:
+          node-version: ${{ matrix.node-version }}
+```
+
+- This job uses Node 22 for builds.
+
+6. Stop PM2 apps
+
+```yaml
+      - name: Stop PM2 apps
+        run: pm2 stop all
+```
+
+- It stops all PM2-managed processes to avoid any conflicts during redeploy
+
+7. Installs backend dependencies
+
+```yaml
+  - name: Install Backend Dependencies
+        working-directory: ./backend
+        run: |
+          npm install --global yarn
+          yarn --version
+          yarn install
+```
+
+- It installs yarn and the backend packages under backend folder
+
+8. Installs frontend dependencies & build
+
+```yaml
+   - name: Install Frontend Dependencies
+        working-directory: ./frontend
+        env:
+          CI: ""
+        run: |
+          df -h
+          sudo rm -rf ./build
+          yarn install
+          yarn run build
+```
+
+- It builds the production react bundle into frontend/build/ and CI: "" it avoids treating warnings as errors during CI.
+
+9. Install dependencies at root and create .env
+
+```yaml
+   - run: npm ci
+      - run: |
+          cd ./backend
+          touch .env
+          echo "${{ secrets.PROD }}" > .env
+```
+
+- It installs the dependencies at root using npm ci and it creates .env file inside backend folder and writes all the environment variables to it.
+
+10. Start/Restart PM2 apps
+
+```yaml
+    - run: pm2 start all
+    - run: pm2 restart all
+```
+
+- It starts and restarts all the PM2 apps to ensure the latest code is live.
